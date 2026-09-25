@@ -239,7 +239,6 @@ def seite(s):
 <a class="sprung" href="#inhalt">Zum Inhalt springen</a>
 <a class="sprung" href="#bewerben">Zur Bewerbung springen</a>
 
-<div class="entwurf-band" role="note">Entwurf Karriereseite &middot; Stand 18.09.2026 &middot; interne Vorschau</div>
 
 %(kopf)s
 
