@@ -1,0 +1,7 @@
+# Karriereseite AO Consulting GmbH
+# Die Vorschau unter *.vorschau.ao-consult.de sperrt sich selbst aus,
+# das erledigt der Ablauf "Vorschau veroeffentlichen" automatisch.
+User-agent: *
+Allow: /
+
+Sitemap: https://ao-karriere.de/sitemap.xml

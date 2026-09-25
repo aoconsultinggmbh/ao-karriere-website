@@ -1,0 +1,280 @@
+/* Karriereseite: nur die Bausteine, die es auf der Hauptseite nicht gibt.
+   Farben, Schriften, Knöpfe, Kopf, Fuß und Raster kommen aus stil.css. */
+
+/* --- Seitenbreite ---
+   stil.css setzt --breite auf 1240 px. Auf einem 1512er Bildschirm bleiben
+   links und rechts fast 140 px leer, auf größeren deutlich mehr, und die Seite
+   wirkt dadurch schmal und beliebig. Diese Seite lebt von Bildern, Stellen und
+   Kacheln, die breit besser wirken. Diese Datei wird nach stil.css geladen,
+   der Wert gilt also nur hier. Lesetexte werden nicht mitbreiter: .kopfzeile
+   und .einleitung sind in stil.css eigen begrenzt. */
+:root{--breite:1560px}
+/* Bei 1512 px blieben mit den 3rem aus stil.css nur 24 px Rand, das klebt am
+   Bildschirmrand. Der Rand waechst jetzt mit, auf dem Handy bleibt er bei 24 px. */
+.innen{width:min(var(--breite),100% - 2 * clamp(1.5rem,3.2vw,3.5rem))}
+.innen--schmal{width:min(1080px,100% - 3rem)}
+
+/* --- Benefits: neun Kacheln --- */
+.benefit__raster{list-style:none;margin:clamp(2rem,4vw,3rem) 0 0;padding:0;display:grid;gap:clamp(1rem,2vw,1.5rem);grid-template-columns:repeat(3,1fr)}
+.benefit{background:var(--weiss);border:1px solid var(--linie);border-radius:var(--radius-k);padding:clamp(1.25rem,2.2vw,1.75rem);box-shadow:var(--schatten-k);transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.benefit:hover{transform:translateY(-3px);box-shadow:0 22px 46px -26px rgba(var(--schleier),.45)}
+.benefit__icon{display:inline-flex;align-items:center;justify-content:center;width:2.75rem;height:2.75rem;border-radius:12px;background:var(--blau-tint);color:var(--blau);margin-bottom:.9rem}
+.benefit__icon svg{width:1.5rem;height:1.5rem;fill:currentColor}
+.benefit h3{font-family:var(--schrift-kopf);font-weight:600;font-size:1.0625rem;color:var(--kopf);margin:0 0 .4rem}
+.benefit p{margin:0;color:var(--text-2);font-size:.9375rem;line-height:1.55}
+@media (max-width:900px){.benefit__raster{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.benefit__raster{grid-template-columns:1fr}}
+
+/* --- Offene Stellen --- */
+.stellen__liste{list-style:none;margin:clamp(2rem,4vw,3rem) 0 0;padding:0;display:grid;gap:clamp(1.25rem,2.5vw,1.75rem)}
+.stelle{background:var(--weiss);border:1px solid var(--linie);border-radius:var(--radius-k);padding:clamp(1.5rem,3vw,2.25rem);box-shadow:var(--schatten-k)}
+.stelle__kopf{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.75rem 1.25rem;margin-bottom:.9rem}
+.stelle__kopf h3{font-family:var(--schrift-kopf);font-weight:600;font-size:clamp(1.125rem,2vw,1.375rem);color:var(--kopf);margin:0;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.stelle__mwd{font-weight:400;color:var(--text-2)}
+.stelle__marken{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0}
+.stelle__marken .marker{display:inline-block;padding:.25rem .65rem;border-radius:999px;background:var(--nebel-2);color:var(--text);font-size:.8125rem;line-height:1.3;white-space:nowrap}
+.stelle>p{color:var(--text);margin:0 0 1rem;max-width:60ch}
+.stelle__punkte{list-style:none;margin:0 0 1.35rem;padding:0;display:grid;gap:.5rem}
+.stelle__punkte li{display:flex;gap:.6rem;align-items:flex-start;color:var(--text-2);font-size:.9375rem;line-height:1.5}
+.stelle__punkte svg{flex:0 0 auto;width:1.125rem;height:1.125rem;margin-top:.18rem;fill:var(--blau)}
+@media (max-width:560px){.stelle__kopf{flex-direction:column;align-items:flex-start}.stelle .knopf{width:100%;text-align:center}}
+
+/* --- Dateifeld im Bewerbungsformular --- */
+.formular input[type=file]{width:100%;padding:.75rem;border:1px dashed var(--linie);border-radius:var(--radius);background:var(--nebel);color:var(--text);font:inherit;font-size:.9375rem}
+.formular input[type=file]:focus-visible{outline:2px solid var(--blau);outline-offset:2px}
+.formular input[type=file]::file-selector-button{font:inherit;font-size:.875rem;margin-right:.75rem;padding:.45rem .9rem;border:0;border-radius:var(--radius);background:var(--blau);color:#fff;cursor:pointer}
+.formular input[type=file]::file-selector-button:hover{background:var(--blau-dunkel)}
+.formular select{width:100%;padding:.8rem .9rem;border:1px solid var(--linie);border-radius:var(--radius);background:var(--weiss);color:var(--text);font:inherit}
+.formular select:focus-visible{outline:2px solid var(--blau);outline-offset:2px}
+.datei__liste{list-style:none;margin:.6rem 0 0;padding:0;display:grid;gap:.35rem}
+.datei__liste li{display:flex;gap:.5rem;align-items:center;font-size:.875rem;color:var(--text-2)}
+.datei__liste svg{width:1rem;height:1rem;fill:var(--blau);flex:0 0 auto}
+
+/* --- Hero-Bewertung ohne Google-Zeichen --- */
+.hero__bewertung .sterne{color:#fbbc05;letter-spacing:.06em}
+
+/* ===========================================================================
+   HELLER KOPFBEREICH MIT GESICHTERBAND (seit 21.09.2026)
+   Ersetzt den dunklen Vollbild-Hero der Agenturseite. Eine Karriereseite muss
+   niemanden überzeugen, sie muss in zwei Sekunden zeigen, wer hier arbeitet,
+   und dann zügig zu den Stellen lassen.
+   =========================================================================== */
+/* Unten stand frueher das Gesichterband und hat den Abstand gebracht. Ohne
+   das Band braucht der Hero eine eigene Fusshoehe. */
+.hero-hell{background:linear-gradient(180deg,var(--weiss) 0,var(--nebel) 100%);padding:clamp(7.5rem,12vw,10rem) 0 clamp(4rem,7vw,6rem);overflow:hidden}
+.hero-hell__innen{display:grid;gap:clamp(2rem,4vw,3.5rem);grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center}
+.hero-hell__text{min-width:0}
+/* Keine automatische Silbentrennung in der grossen Zeile: sie ergab zusammen mit
+   einem festen Umbruch "mitbrin-gen". Die Zeilen verteilt jetzt der Browser
+   gleichmaessig, harter Umbruch nur als Notbremse fuer sehr schmale Schirme. */
+/* H1 ist seit 25.09.2026 die kleine Zeile mit Ort und Region (fuer Google),
+   der Spruch darunter ist ein Absatz mit dem Aussehen der alten Ueberschrift.
+   So bleibt das Bild gleich und die Ueberschrift sagt, worum es geht. */
+.hero-hell__text .hero-hell__h1{font-size:.78rem;line-height:1.5;letter-spacing:.16em;margin:0 0 1.1rem}
+.hero-hell__spruch{font-family:var(--schrift-kopf);font-weight:700;color:var(--kopf);
+  font-size:clamp(2.3rem,4.6vw,3.7rem);line-height:1.06;letter-spacing:-.025em;margin:.4rem 0 1.1rem;
+  hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word;text-wrap:balance}
+.hero-hell__text .einleitung{max-width:46ch}
+.hero-hell__cta{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.5rem;margin:1.75rem 0 .9rem}
+.hero-hell__mikro{color:var(--text-2);font-size:.875rem;margin:0}
+.hero-hell__bild{position:relative;min-width:0}
+.hero-hell__bild picture{display:block;border-radius:var(--radius-k);overflow:hidden;box-shadow:var(--schatten)}
+/* Nur fuer ein Foto im Hero. Ohne picture traf die Regel auch das kununu-Banner
+   und schnitt es auf 3 zu 2 zu. */
+.hero-hell__bild picture img{width:100%;height:auto;display:block;aspect-ratio:3/2;object-fit:cover}
+/* Die Karte vor dem Film zeigt vor der Einwilligung die eigene Bewertung,
+   danach das Banner von kununu, genau wie auf der heutigen Seite. */
+.kununu--karte .kununu__kern{display:grid;gap:.1rem;color:inherit;text-decoration:none}
+.kununu--karte .kununu__siegel{display:block;max-width:100%;height:auto}
+.kununu--karte a{display:block}
+/* display:grid und display:block schlagen das hidden-Attribut. Ohne diese Zeile
+   stuende die eigene Karte weiter ueber dem Banner. */
+.kununu--karte [hidden]{display:none}
+.hero-hell__note{position:absolute;left:-1rem;bottom:-1.25rem;background:var(--weiss);border:1px solid var(--linie);border-radius:var(--radius-k);box-shadow:var(--schatten-k);padding:.85rem 1.1rem;display:grid;gap:.1rem;max-width:15rem}
+.hero-hell__note .sterne{color:#fbbc05;letter-spacing:.08em;font-size:.9375rem}
+.hero-hell__note b{font-family:var(--schrift-kopf);font-size:1.0625rem;color:var(--kopf)}
+.hero-hell__note span:last-child{font-size:.8125rem;color:var(--text-2);line-height:1.4}
+@media (max-width:900px){
+  .hero-hell__innen{grid-template-columns:1fr}
+  .hero-hell__note{position:static;margin-top:1.25rem;max-width:none}
+}
+
+/* --- Gesichterband: die echten Leute, über die volle Breite --- */
+
+/* --- Stellenkarte mit Bild --- */
+/* Kompakte Stellenkarte: nebeneinander, gleich hoch, der Knopf steht unten. */
+.stellen__liste{grid-template-columns:repeat(auto-fit,minmax(min(100%,17.5rem),1fr))}
+.stelle--kompakt{display:flex;flex-direction:column;gap:.85rem;padding:clamp(1.35rem,2.2vw,1.75rem);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease)}
+.stelle--kompakt:hover{transform:translateY(-3px);border-color:var(--blau);
+  box-shadow:0 22px 46px -26px rgba(var(--schleier),.45)}
+.stelle--kompakt h3{font-family:var(--schrift-kopf);font-weight:600;font-size:clamp(1.125rem,1.6vw,1.3rem);
+  line-height:1.3;color:var(--kopf);margin:0;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.stelle--kompakt h3 a{color:inherit;text-decoration:none}
+.stelle--kompakt h3 a:hover,.stelle--kompakt h3 a:focus-visible{color:var(--blau)}
+.stelle--kompakt>p:not(.stelle__marken){margin:0;color:var(--text-2);font-size:.9688rem;line-height:1.55}
+.stelle--kompakt .knopf{margin-top:auto;align-self:flex-start}
+@media (max-width:560px){.stelle--kompakt .knopf{align-self:stretch;text-align:center}}
+
+/* --- Kontaktband unten: kein Formular, nur Wege zum Menschen --- */
+.kontaktband{padding:clamp(3.5rem,7vw,6rem) 0}
+.kontaktband__innen{display:grid;gap:clamp(2rem,4vw,3.5rem);grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:center}
+.kontaktband__text{min-width:0}
+.kontaktband__text .einleitung{max-width:48ch;color:rgba(255,255,255,.82)}
+.kontaktband__mikro{color:rgba(255,255,255,.6);font-size:.875rem;margin:1rem 0 0}
+.kontaktband__karte{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius-k);padding:clamp(1.5rem,3vw,2rem);text-align:center;min-width:0}
+.kontaktband__karte>img{width:7.5rem;height:7.5rem;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);margin:0 auto .9rem;display:block}
+.kontaktband__name{font-family:var(--schrift-kopf);font-weight:600;font-size:1.125rem;color:#fff;margin:0}
+.kontaktband__rolle{color:rgba(255,255,255,.72);font-size:.9375rem;margin:.1rem 0 1.25rem}
+.kontaktband__wege{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.kontaktband__wege a{display:flex;align-items:center;justify-content:center;gap:.55rem;min-height:2.75rem;padding:.5rem .9rem;border-radius:var(--radius);background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:.9375rem;transition:background .25s var(--ease),color .25s var(--ease)}
+.kontaktband__wege a svg{width:1.125rem;height:1.125rem;fill:currentColor;flex:0 0 auto}
+.kontaktband__wege a:hover,.kontaktband__wege a:focus-visible{background:#fff;color:var(--kopf)}
+.kontaktband__wege a.ist-wa:hover,.kontaktband__wege a.ist-wa:focus-visible{background:var(--wa);color:#fff}
+.kontaktband__wege a.ist-wa:hover svg,.kontaktband__wege a.ist-wa:focus-visible svg{color:#fff}
+@media (max-width:820px){.kontaktband__innen{grid-template-columns:1fr}}
+
+/* Die Chips stammen aus dem dunklen Hero der Agenturseite: weiße Schrift auf
+   halbdurchsichtigem Weiß. Auf hellem Grund sind sie unsichtbar. */
+.hero-hell .chips{margin:1.4rem 0 0}
+.hero-hell .chips li{background:var(--weiss);border:1px solid var(--linie);color:var(--kopf);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:var(--schatten-k)}
+.hero-hell .chips svg{color:var(--blau)}
+
+/* Das Bildmosaik folgt direkt auf die drei Textblöcke. Auf der Hauptseite steht
+   davor eine eigene Kopfzeile, die den Abstand mitbringt, hier nicht. Ohne
+   eigenen Abstand stößt der längste der drei Texte an die erste Kachelreihe. */
+#team .mosaik__raster{margin-top:clamp(3rem,6vw,5rem)}
+/* stil.css gibt den Kacheln feste 230 px Hoehe. Seit die Seite breiter ist,
+   wurden die Kacheln dadurch sehr quer, und bei Hochformat-Fotos fielen oben
+   die Koepfe weg. Hier waechst die Hoehe mit der Breite mit (4 zu 3). */
+#team .mosaik__raster{grid-auto-rows:auto}
+#team .mosaik__raster li{aspect-ratio:4/3}
+@media (max-width:560px){#team .mosaik__raster li{aspect-ratio:4/3}}
+#team .lage__raster{margin-bottom:0}
+
+/* ===========================================================================
+   KARUSSELL
+   Die mittlere Karte steht groß in der Mitte, die Nachbarn laufen links und
+   rechts als kleine Vorschau mit. Pfeile außen, Punkte darunter.
+   Wiederverwendbar für jede Karriereseite der AO Consulting GmbH.
+
+     <div class="band band--karussell" data-band data-band-schleife>
+       <button data-band-zurueck>…</button>
+       <ul class="band__spur" data-band-spur><li class="band__feld">…</li></ul>
+       <button data-band-vor>…</button>
+       <ol class="band__punkte" data-band-punkte></ol>
+     </div>
+
+   Gescrollt wird echt, die Pfeile schieben nur. Damit bleiben Wischen auf dem
+   Handy, Tastatur und Screenreader ohne Zusatzarbeit erhalten. Die Schleife
+   entsteht aus Kopien vor und nach der Reihe, die das Skript anlegt; sie
+   tragen aria-hidden und inert, zählen also für niemanden doppelt.
+   =========================================================================== */
+/* Die drei Schritte stehen jetzt neben einem Bild statt allein. Auf schmalen
+   Schirmen wandert das Bild nach oben. */
+.methode__raster{display:grid;gap:clamp(1.75rem,3vw,3rem);
+  grid-template-columns:minmax(0,.85fr) minmax(0,1fr);align-items:center}
+.methode__bild{margin:0;min-width:0}
+.methode__bild picture{display:block;border-radius:var(--radius-k);overflow:hidden;
+  box-shadow:var(--schatten)}
+.methode__bild img{width:100%;height:auto;display:block;aspect-ratio:3/2;object-fit:cover}
+.methode__bild figcaption{margin-top:.7rem;font-size:.8125rem;color:rgba(255,255,255,.66)}
+/* Neben dem Bild ist kein Platz fuer drei Spalten, die Zeilen wuerden auf
+   zwei Woerter zusammenschnurren. Die drei Schritte stehen dort untereinander. */
+.methode__raster .schritte--drei{grid-template-columns:1fr;max-width:none;margin:0}
+.methode__raster .schritte--drei li:last-child{border-bottom:1px solid rgba(255,255,255,.1)}
+@media (max-width:900px){.methode__raster{grid-template-columns:1fr}}
+
+.band{position:relative;margin-top:clamp(2rem,4vw,3rem)}
+.band__spur{list-style:none;margin:0;padding:.5rem 0 1rem;display:flex;gap:clamp(1rem,2vw,1.5rem);
+  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  scrollbar-width:none}
+.band__spur::-webkit-scrollbar{display:none}
+.band__feld{flex:0 0 min(58%,42rem);scroll-snap-align:center;min-width:0;
+  transition:opacity .35s var(--ease),transform .35s var(--ease)}
+@media (max-width:820px){.band__feld{flex-basis:min(78%,30rem)}}
+@media (prefers-reduced-motion: reduce){.band__spur{scroll-behavior:auto}.band__feld{transition:none}}
+
+/* Die Nachbarn sind Vorschau, nicht Hauptsache: kleiner und zurückgenommen.
+   Der Knopf dort wäre nur ein Fehlklick, also ist er unsichtbar und tot. */
+.band__feld[data-nebenan]{opacity:.58;transform:scale(.93)}
+.band__feld[data-nebenan] .video__hinweis{opacity:0;pointer-events:none}
+
+.band__pfeil{position:absolute;top:calc(50% - 1.1rem);transform:translateY(-50%);z-index:3;
+  width:3rem;height:3rem;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:#fff;display:grid;place-items:center;cursor:pointer;
+  transition:background .25s var(--ease),color .25s var(--ease),opacity .25s var(--ease)}
+.band__pfeil[hidden]{display:none}
+.band__pfeil svg{width:1.4rem;height:1.4rem;fill:currentColor}
+.band__pfeil:hover,.band__pfeil:focus-visible{background:#fff;color:var(--kopf)}
+.band__pfeil--zurueck{left:clamp(.25rem,2vw,1.5rem)}
+.band__pfeil--vor{right:clamp(.25rem,2vw,1.5rem)}
+
+/* Auf dem Handy ist neben dem Video kein Platz. Dort saessen die Pfeile auf
+   dem Bild und wuerden das Gesicht verdecken. Deshalb wandern sie unter das
+   Video und bilden mit den Punkten eine Bedienzeile. */
+@media (max-width:640px){
+  .band{display:grid;grid-template-columns:auto 1fr auto;
+    grid-template-areas:"spur spur spur" "zurueck punkte vor";align-items:center}
+  .band__spur{grid-area:spur}
+  .band__pfeil{position:static;transform:none;width:2.6rem;height:2.6rem;
+    background:rgba(255,255,255,.1)}
+  .band__pfeil svg{width:1.2rem;height:1.2rem}
+  .band__pfeil--zurueck{grid-area:zurueck;justify-self:start}
+  .band__pfeil--vor{grid-area:vor;justify-self:end}
+  .band__punkte{grid-area:punkte;margin:0}
+}
+
+.band__punkte{list-style:none;display:flex;justify-content:center;gap:.55rem;margin:.6rem 0 0;padding:0}
+.band__punkte li{display:flex}
+.band__punkte button{width:.6rem;height:.6rem;padding:0;border:0;border-radius:50%;
+  background:rgba(255,255,255,.28);cursor:pointer;
+  transition:background .25s var(--ease),width .25s var(--ease)}
+.band__punkte button[aria-current="true"]{background:var(--blau);width:1.5rem;border-radius:999px}
+.band__punkte button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+/* --- Ein Videofeld --- */
+.stimme{margin:0;display:flex;flex-direction:column;gap:.7rem}
+.stimme__name{font-family:var(--schrift-kopf);font-weight:600;color:#fff;
+  font-size:clamp(1rem,1.6vw,1.125rem);text-align:center}
+.stimme__name span{color:rgba(255,255,255,.66);font-weight:400}
+
+/* Das Videofeld zeigt kein Vorschaubild mehr. Ohne Einwilligung steht dort der
+   Ladeknopf auf dunklem Grund, danach der Wistia-Rahmen, in dem das Video stumm
+   und in Schleife laeuft. 16 zu 9, damit beim Laden nichts springt. */
+.video__box--band{position:relative;aspect-ratio:16/9;border-radius:var(--radius-k);
+  overflow:hidden;background:linear-gradient(150deg,var(--tinte-2) 0,var(--tinte-0) 100%)}
+.video__box--band iframe{width:100%;height:100%;border:0;display:block}
+
+/* Der Recruitingfilm im Hero. Gleiche Form wie das Bild vorher, nur 16 zu 9,
+   weil das Videoformat so ist und sonst schwarze Balken entstuenden. */
+.video__box--hero{position:relative;aspect-ratio:16/9;border-radius:var(--radius-k);
+  overflow:hidden;box-shadow:var(--schatten);
+  background:linear-gradient(150deg,var(--tinte-2) 0,var(--tinte-0) 100%)}
+.video__box--hero iframe{width:100%;height:100%;border:0;display:block}
+/* Die kununu-Karte lag ueber dem Bild kaum stoerend. Ueber einem laufenden Film
+   verdeckt sie Gesichter, deshalb rutscht sie weiter aus dem Rahmen heraus. */
+.hero-hell__bild:has(.video__box--hero) .hero-hell__note{left:-1.75rem;bottom:-2.25rem}
+@media (max-width:900px){
+  .hero-hell__bild:has(.video__box--hero) .hero-hell__note{left:0;bottom:-1.5rem}
+}
+
+.video__tor{position:absolute;inset:0;display:grid;align-content:center;justify-items:center;
+  gap:.75rem;padding:clamp(1rem,3vw,1.75rem);text-align:center}
+.video__tor p{margin:0;font-size:.8125rem;line-height:1.45;color:rgba(255,255,255,.72);max-width:28rem}
+.video__tor p a{color:#fff}
+
+/* Im Karussell ist nur die Mitte gemeint. Der Knopf der Nachbarn waere ein
+   Fehlklick, also ist er dort unsichtbar und tot. */
+.band__feld[data-nebenan] .video__tor{opacity:0;pointer-events:none}
+
+/* Bewertungskachel im Mosaik: fuenf Sterne oben, damit die Kachel nicht leer
+   wirkt. Gleiches Gelb wie in der kununu-Karte vor dem Film. Das echte Banner
+   steht bewusst nicht hier: es kaeme sonst dreimal vor und braucht eine
+   Einwilligung, vorher waere die Kachel genauso leer. */
+/* Sterne rechts neben der Zahl, auf einer Linie mit ihr. */
+.kachel--sterne .kachel__zeile{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:.4rem}
+.kachel--sterne .kachel__zeile b{margin-bottom:0}
+.kachel--sterne .kachel__sterne{font-size:clamp(1rem,1.5vw,1.3rem);letter-spacing:.1em;color:#fbbc05;line-height:1;
+  text-shadow:0 0 14px rgba(251,188,5,.35)}

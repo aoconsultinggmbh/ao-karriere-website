@@ -1,0 +1,82 @@
+# ---------------------------------------------------------------------------
+# Karriereseite AO Consulting - Servereinstellungen (All-Inkl, Apache)
+# ---------------------------------------------------------------------------
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # --- Uebergangsadresse des Hosters nicht umleiten -------------------------
+  # Vor dem Domain-Umzug ist die Seite nur unter der Adresse
+  # <domain>.<konto>.kasserver.com erreichbar. Ohne diese Ausnahme wuerde die
+  # Umleitung darunter jeden Aufruf sofort wieder auf die ALTE Seite schicken,
+  # und der Test vor dem Livegang waere unmoeglich.
+  # Die Regel bleibt auch nach dem Livegang stehen: sie stoert nicht und
+  # rettet den naechsten Test.
+  RewriteCond %{HTTP_HOST} \.kasserver\.com$ [NC]
+  RewriteRule ^ - [L]
+
+  # HTTPS erzwingen und www auf die Hauptdomain leiten
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://ao-karriere.de%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Alte Adressen der WordPress-Seite (Stand 25.09.2026, aus deren Sitemap)
+# Jede alte Adresse bekommt eine dauerhafte Weiterleitung, damit weder Google
+# noch alte Links ins Leere laufen.
+# ---------------------------------------------------------------------------
+Redirect 301 /impressum/ /rechtliches/impressum.html
+Redirect 301 /datenschutzerklaerung/ /rechtliches/datenschutz.html
+Redirect 301 /hinweis-zur-gleichstellung/ /rechtliches/hinweis-zur-gleichstellung.html
+Redirect 301 /job/hotelfachfrau-buerokauffrau-quereinsteiger-als-assistentin-im-backoffice-m-w-d/ /stellen/assistenz-backoffice-bruchsal.html
+Redirect 301 /job/hotelfachmann-buerokaufmann-quereinsteiger-als-vertriebsmitarbeiter-im-innendienst-m-w-d/ /stellen/vertriebsmitarbeiter-innendienst-bruchsal.html
+
+<IfModule mod_rewrite.c>
+  # Alles andere unter /job/ und die alten Kategorieseiten auf die Stellenliste
+  RewriteRule ^job/?$ /#stellen [L,R=301]
+  RewriteRule ^job/ /#stellen [L,R=301]
+  RewriteRule ^jobs_category/ /#stellen [L,R=301]
+  # Die alten Sitemaps von Yoast auf unsere neue
+  RewriteRule ^(sitemap_index|page-sitemap|jobs-sitemap|jobs_category-sitemap|dipi_faq_category-sitemap)\.xml$ /sitemap.xml [L,R=301]
+  # WordPress-Reste ins Leere laufen lassen statt Fehlerseiten zu zeigen
+  RewriteRule ^wp-(admin|login|content|includes|json) - [G,L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Zwischenspeicher
+# ---------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 day"
+  ExpiresByType application/javascript "access plus 1 day"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # HTML nie zwischenspeichern: sonst sehen Besucher (und wir beim
+  # Testen) nach einer Aenderung stundenlang die alte Seite.
+  <FilesMatch "\.(html|php)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript text/xml application/xml image/svg+xml
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+</IfModule>

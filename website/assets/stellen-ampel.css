@@ -1,0 +1,88 @@
+/* ===========================================================================
+   STELLEN-AMPEL
+   Wiederverwendbarer Baustein für jede Karriereseite der AO Consulting GmbH.
+   Diese Datei ist selbsttragend: kopieren, verlinken, fertig. Sie braucht
+   nichts aus stil.css außer den Schriftfamilien.
+   ---------------------------------------------------------------------------
+   Anwendung: der Zustand steht am Behälter der Stelle, nicht an der Ampel.
+
+     <li class="stelle" data-status="aktiv">
+       <span class="ampel"><span class="ampel__punkt" aria-hidden="true"></span>Online</span>
+
+   Drei Zustände:
+     data-status="aktiv"      grün, blinkend    "Online" oder "Jetzt bewerben"
+     data-status="initiativ"  gelb, ruhig       "Initiativ bewerben"
+     data-status="besetzt"    rot, ruhig        "Besetzt" oder "Nicht mehr offen"
+
+   Zwei Regeln, an denen nicht gedreht wird:
+   1. Die Farbe trägt die Aussage nie allein. Neben dem Punkt steht immer das
+      Wort. Wer Rot und Grün nicht unterscheidet, liest trotzdem, was los ist.
+   2. Wer in den Systemeinstellungen weniger Bewegung wünscht, bekommt kein
+      Blinken. Der Punkt bleibt dann gefüllt und behält seinen Ring.
+   3. Die Schriftfarben sind gegen ihre Fläche gemessen, nicht geschätzt:
+      grün 6,5 zu 1, gelb 6,4 zu 1, rot 6,7 zu 1. Gefordert sind 4,5 zu 1.
+      Wer die Farben ändert, misst nach.
+   =========================================================================== */
+
+/* .stelle ist die Karte in der Liste, .stelle-seite die Unterseite einer Stelle.
+   Beide tragen den Status. Bei Nachkommen-Selektoren muss jeder Teil der Liste
+   vollstaendig ausgeschrieben werden, sonst trifft die Regel die Karte selbst. */
+.stelle[data-status="aktiv"], .stelle-seite[data-status="aktiv"]     { --ampel-schrift:#166534; --ampel-flaeche:#dcfce7; --ampel-rand:#86efac; --ampel-punkt:#22c55e }
+.stelle[data-status="initiativ"], .stelle-seite[data-status="initiativ"] { --ampel-schrift:#92400e; --ampel-flaeche:#fef3c7; --ampel-rand:#fcd34d; --ampel-punkt:#f59e0b }
+.stelle[data-status="besetzt"], .stelle-seite[data-status="besetzt"]   { --ampel-schrift:#9f1239; --ampel-flaeche:#ffe4e6; --ampel-rand:#fda4af; --ampel-punkt:#e11d48 }
+
+.ampel{
+  display:inline-flex; align-items:center; gap:.55rem;
+  padding:.34rem .85rem .34rem .72rem;
+  border-radius:999px;
+  font-family:var(--schrift-kopf,"Poppins",system-ui,sans-serif);
+  font-size:.8125rem; font-weight:600; line-height:1.3; letter-spacing:.01em;
+  white-space:nowrap;
+  color:var(--ampel-schrift,#3b4553);
+  background:var(--ampel-flaeche,#eef1f5);
+  border:1px solid var(--ampel-rand,rgba(37,34,46,.14));
+}
+
+.ampel__punkt{
+  position:relative; flex:0 0 auto;
+  width:.5rem; height:.5rem; border-radius:50%;
+  background:var(--ampel-punkt,#6b7482);
+}
+
+/* Der Ring ist ein zweiter Kreis über dem Punkt. Er wächst und verblasst,
+   der Punkt selbst bleibt ruhig, sonst wirkt es unruhig statt lebendig. */
+.ampel__punkt::after{
+  content:""; position:absolute; inset:0; border-radius:50%;
+  background:var(--ampel-punkt,#6b7482);
+  opacity:0;
+}
+.stelle[data-status="aktiv"] .ampel__punkt::after,
+.stelle-seite[data-status="aktiv"] .ampel__punkt::after{
+  animation:ampel-puls 2.1s cubic-bezier(.22,.8,.3,1) infinite;
+}
+
+@keyframes ampel-puls{
+  0%   { transform:scale(1);   opacity:.55 }
+  70%  { transform:scale(3.2); opacity:0 }
+  100% { transform:scale(3.2); opacity:0 }
+}
+
+/* Ruhiger Zustand: kein Blinken, dafür ein sichtbarer Ring, damit der Punkt
+   nicht kleiner wirkt als der blinkende. */
+.stelle[data-status="initiativ"] .ampel__punkt::after,
+.stelle-seite[data-status="initiativ"] .ampel__punkt::after,
+.stelle[data-status="besetzt"] .ampel__punkt::after,
+.stelle-seite[data-status="besetzt"] .ampel__punkt::after{
+  transform:scale(1.9); opacity:.24;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .stelle[data-status="aktiv"] .ampel__punkt::after,
+  .stelle-seite[data-status="aktiv"] .ampel__punkt::after{
+    animation:none; transform:scale(1.9); opacity:.3;
+  }
+}
+
+/* Besetzte Stellen treten zurück, ohne unlesbar zu werden. */
+.stelle[data-status="besetzt"]{ opacity:.82 }
+.stelle[data-status="besetzt"] .knopf{ pointer-events:none; opacity:.5 }

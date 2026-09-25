@@ -1,0 +1,63 @@
+<section class="sepa" id="bewerben" aria-labelledby="bewerben-titel">
+  <div class="innen sepa__raster">
+    <div class="sepa__text reveal">
+      <p class="kicker">Dein nächster Schritt</p>
+      <h2 id="bewerben-titel">Bewerben dauert <span class="hl">zwei Minuten</span></h2>
+      <p>Name und wie wir Dich erreichen. Lebenslauf anhängen, fertig. Wenn Du gerade keinen zur Hand hast, schick das Formular trotzdem ab und schreib es ins Nachrichtenfeld.</p>
+      <dl class="sepa__daten">
+        <dt>Ansprechpartner</dt><dd>Ovidiu Rieger</dd>
+        <dt>E-Mail</dt><dd><a href="mailto:jobs@ao-karriere.de">jobs@ao-karriere.de</a></dd>
+        <dt>Telefon</dt><dd><a href="tel:+4917685933551">0176 85933551</a></dd>
+        <dt>Adresse</dt><dd>Zeiloch 13, 76646 Bruchsal<br><a class="route" href="https://www.google.com/maps/dir/?api=1&amp;destination=AO%20Consulting%20GmbH%2C%20Zeiloch%2013%2C%2076646%20Bruchsal" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#ic-pin"/></svg>Route planen</a></dd>
+      </dl>
+      <p class="sepa__hinweis"><svg aria-hidden="true"><use href="#ic-schild"/></svg><span>Deine Unterlagen gehen verschlüsselt an die AO Consulting GmbH und werden nur für dieses Bewerbungsverfahren verwendet.</span></p>
+    </div>
+
+    <form class="formular reveal" id="bewerbung-formular" data-pruefen novalidate aria-labelledby="bewerbung-formular-titel" action="bewerbung.php" method="post" enctype="multipart/form-data">
+      <div class="honig" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden"><label for="b-webseite">Webseite</label><input id="b-webseite" name="webseite" type="text" tabindex="-1" autocomplete="off"></div>
+      <h3 id="bewerbung-formular-titel">Deine Bewerbung</h3>
+<!--STELLE-KOPF-->
+      <p class="formular__hinweis">Alle mit <span aria-hidden="true">*</span> gekennzeichneten Felder sind Pflichtfelder.</p>
+      <div class="feld">
+        <label for="b-name">Dein Name <span aria-hidden="true">*</span></label>
+        <input id="b-name" name="name" type="text" autocomplete="name" required>
+        <p class="fehler" id="b-name-fehler" hidden>Bitte nenne uns Deinen Namen.</p>
+      </div>
+      <div class="feld feld--halb">
+        <div>
+          <label for="b-mail">E-Mail <span aria-hidden="true">*</span></label>
+          <input id="b-mail" name="email" type="email" autocomplete="email" inputmode="email" required>
+        </div>
+        <div>
+          <label for="b-tel">Telefon <span aria-hidden="true">*</span></label>
+          <input id="b-tel" name="telefon" type="tel" autocomplete="tel" inputmode="tel" required>
+        </div>
+        <p class="fehler" id="b-mail-fehler" hidden>Bitte gib eine E-Mail-Adresse an, damit wir antworten können.</p>
+        <p class="fehler" id="b-tel-fehler" hidden>Bitte gib eine Telefonnummer an, damit wir Dich anrufen können.</p>
+      </div>
+<!--STELLE-->
+      <div class="feld">
+        <label for="b-datei">Lebenslauf anhängen</label>
+        <input id="b-datei" name="unterlagen" type="file" accept=".pdf,application/pdf" multiple>
+        <p class="formular__klein">Bitte als PDF, zusammen bis 10 MB. Bis zu drei Dateien.</p>
+        <p class="fehler" id="b-datei-fehler" hidden></p>
+      </div>
+      <div class="feld">
+        <label for="b-nachricht">Warum meldest Du Dich? (optional)</label>
+        <textarea id="b-nachricht" name="nachricht" rows="3" placeholder="Drei Sätze genügen."></textarea>
+      </div>
+      <div class="feld feld--check">
+        <input id="b-ds" name="datenschutz" type="checkbox" required>
+        <label for="b-ds">Ich habe die <a href="https://ao-karriere.de/datenschutzerklaerung/" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin einverstanden, dass meine Angaben für dieses Bewerbungsverfahren verarbeitet werden. <span aria-hidden="true">*</span></label>
+        <p class="fehler" id="b-ds-fehler" hidden>Ohne Deine Einwilligung dürfen wir die Bewerbung nicht bearbeiten.</p>
+      </div>
+      <button class="knopf knopf--primaer knopf--gross knopf--breit" type="submit">Bewerbung absenden</button>
+      <p class="formular__klein">Wir melden uns innerhalb von 48 bis 72 Stunden.</p>
+      <p class="fehler" id="bewerbung-versand-fehler" hidden></p>
+      <div class="danke" hidden role="status">
+        <h3>Danke, Deine Bewerbung ist da.</h3>
+        <p>Wir sehen sie uns an und melden uns innerhalb von 48 bis 72 Stunden. Schau bitte auch in den Spam-Ordner.</p>
+      </div>
+    </form>
+  </div>
+</section>
