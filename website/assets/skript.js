@@ -25,6 +25,7 @@
       burger.setAttribute('aria-expanded', offen ? 'true' : 'false');
       burger.setAttribute('aria-label', offen ? 'Menü schließen' : 'Menü öffnen');
       document.documentElement.style.overflow = offen ? 'hidden' : '';
+      document.documentElement.classList.toggle('menue-offen', offen);
     };
     burger.addEventListener('click', function () {
       setzeMenue(burger.getAttribute('aria-expanded') !== 'true');
