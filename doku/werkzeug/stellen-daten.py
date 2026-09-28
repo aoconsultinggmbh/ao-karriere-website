@@ -40,7 +40,8 @@ FIRMA = {
     # ACHTUNG 21.09.2026: hier standen "Mo bis Do 08:00 bis 17:30, Fr 08:00 bis
     # 16:00". Die Zeiten stammten aus einem Beispiel im Skill ao-schreibstil und
     # waren nie geprueft. Ovidiu hat widersprochen, deshalb jetzt leer.
-    'oeffnungszeiten': None,
+    # 28.09.2026 von Admir bestaetigt: 08:00 bis 17:00 Uhr.
+    'oeffnungszeiten': 'montags bis freitags von 08:00 bis 17:00 Uhr',
     'seite': 'https://ao-consult.de/',
     'karriere': 'https://ao-karriere.de/',
     'logo': 'https://ao-karriere.de/img/ao-consulting-logo.svg',

@@ -490,7 +490,7 @@ def firmendaten_einsetzen(s):
     Steht dort None, faellt der Satzteil ersatzlos weg, statt eine Zahl zu
     erfinden."""
     z = FIRMA.get('oeffnungszeiten')
-    satz = (' Das Büro ist %s besetzt,' % z) if z else ''
+    satz = (' Das Büro ist %s besetzt.' % z) if z else ''
     return re.sub(r'<span data-firma="zeiten">.*?</span>',
                   '<span data-firma="zeiten">%s</span>' % satz, s, flags=re.S)
 
