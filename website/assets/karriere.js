@@ -161,7 +161,12 @@
 
     var letzteMitte = -1;
     function mitteBespielen(i) {
-      if (!darfMedien() || i === letzteMitte) return;
+      if (!darfMedien()) return;
+      // Nicht nur auf die Nummer verlassen: nach dem unsichtbaren Sprung an
+      // den Kopien-Rand oder bei schnellem Klicken kann die Mitte dieselbe
+      // Nummer tragen und trotzdem leer sein. Dann steht dort das Ladetor.
+      var mitteBox = felder[i] ? felder[i].querySelector('.video__box') : null;
+      if (i === letzteMitte && (!mitteBox || mitteBox.querySelector('iframe'))) return;
       letzteMitte = i;
       felder.forEach(function (f, k) {
         var box = f.querySelector('.video__box');
@@ -209,15 +214,24 @@
       var i = naechstesFeld();
       if (i < anzahl) springe(i + anzahl, false);
       else if (i >= anzahl * 2) springe(i - anzahl, false);
+      else return;
+      // Der Sprung ist sofort wirksam, sein Scroll-Ereignis kommt aber erst
+      // spaeter. Die neue Mitte deshalb gleich bespielen.
+      mitteBespielen(naechstesFeld());
     }
     spur.addEventListener('scroll', function () {
       zustand();
+      // Schon waehrend der Fahrt laden, nicht erst nach 200 ms Ruhe: wer schnell
+      // klickt, sah sonst in der Mitte das Ladetor statt des Videos.
+      mitteBespielen(naechstesFeld());
       clearTimeout(ruhe);
       ruhe = setTimeout(nachfassen, 200);
     }, { passive: true });
 
     function schiebe(richtung) {
-      springe(Math.min(felder.length - 1, Math.max(0, naechstesFeld() + richtung)), true);
+      var ziel = Math.min(felder.length - 1, Math.max(0, naechstesFeld() + richtung));
+      springe(ziel, true);
+      mitteBespielen(ziel);
     }
     if (zurueck) zurueck.addEventListener('click', function () { schiebe(-1); });
     if (vor) vor.addEventListener('click', function () { schiebe(1); });

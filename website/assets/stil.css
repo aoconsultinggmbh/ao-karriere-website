@@ -162,7 +162,7 @@ a.knopf--primaer:hover::after{transform:translateX(5px)}
 .tel-link svg{width:1.25em;height:1.25em;color:var(--blau)}
 
 /* ---------- Kopf (über dem Hero transparent, beim Scrollen weiß) ---------- */
-.kopf{position:fixed;left:0;right:0;top:1.55rem;z-index:100;padding:.9rem 0;transition:background .3s,box-shadow .3s,padding .3s,top .3s}
+.kopf{position:fixed;left:0;right:0;top:0;z-index:100;padding:.9rem 0;transition:background .3s,box-shadow .3s,padding .3s,top .3s}
 .kopf.geschrumpft{background:rgba(255,255,255,.96);box-shadow:0 1px 0 var(--linie);padding:.55rem 0}
 /* Der Weichzeichner liegt auf einem Hilfselement, nicht auf dem Kopf selbst.
    Ein backdrop-filter direkt auf .kopf macht den Kopf zum Bezugsrahmen für das
@@ -225,6 +225,8 @@ a.knopf--primaer:hover::after{transform:translateX(5px)}
   .nav__mobil{display:block;margin-top:.5rem}
   .nav__mobil .knopf{display:flex;background:var(--blau);color:#fff;font-size:1.05rem}
   .nav__mobil .knopf:hover{background:var(--blau-dunkel);color:#fff}
+  /* Die Farbregeln des Kopfes (.kopf--hell .nav__liste a) sind spezifischer als .nav__mobil .knopf und färbten die Schrift dunkel */
+  .kopf .nav__liste .nav__mobil a.knopf,.kopf .nav__liste .nav__mobil a.knopf:hover{color:#fff}
   .burger{display:flex;position:relative;z-index:95}
   /* Solange das Menü offen ist, weicht der runde Barrierefreiheits-Knopf, sonst liegt er über dem Knopf „Offene Stellen“ */
   html.menue-offen .bf-knopf{visibility:hidden}
