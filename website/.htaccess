@@ -36,10 +36,11 @@ Redirect 301 /job/hotelfachfrau-buerokauffrau-quereinsteiger-als-assistentin-im-
 Redirect 301 /job/hotelfachmann-buerokaufmann-quereinsteiger-als-vertriebsmitarbeiter-im-innendienst-m-w-d/ /stellen/vertriebsmitarbeiter-innendienst-bruchsal.html
 
 <IfModule mod_rewrite.c>
-  # Alles andere unter /job/ und die alten Kategorieseiten auf die Stellenliste
-  RewriteRule ^job/?$ /#stellen [L,R=301]
-  RewriteRule ^job/ /#stellen [L,R=301]
-  RewriteRule ^jobs_category/ /#stellen [L,R=301]
+  # Alles andere unter /job/ und die alten Kategorieseiten auf die Stellenliste.
+  # NE (noescape) ist Pflicht: ohne das Flag wird # zu %23 und der Aufruf endet im 404.
+  RewriteRule ^job/?$ /#stellen [NE,L,R=301]
+  RewriteRule ^job/ /#stellen [NE,L,R=301]
+  RewriteRule ^jobs_category/ /#stellen [NE,L,R=301]
   # Die alten Sitemaps von Yoast auf unsere neue
   RewriteRule ^(sitemap_index|page-sitemap|jobs-sitemap|jobs_category-sitemap|dipi_faq_category-sitemap)\.xml$ /sitemap.xml [L,R=301]
   # WordPress-Reste ins Leere laufen lassen statt Fehlerseiten zu zeigen

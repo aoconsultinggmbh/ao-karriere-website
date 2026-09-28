@@ -2,7 +2,7 @@
 titel: SEO- und GEO-Prüfung der Karriereseite
 kategorie: Projekt-Output
 kurzbeschreibung: Google for Jobs, KI-Suchmaschinen, Stellentitel, H1 und Region. Was geprüft wurde, was umgesetzt ist, was entschieden werden muss.
-stand: 2026-09-25
+stand: 2026-09-28
 erstellt-von: Claude auf Anweisung Ovidiu
 ---
 
@@ -114,6 +114,51 @@ festem Zeilenumbruch. Beides ist raus, die Zeilen verteilt der Browser jetzt gle
 | H1 mit Region | kleine Zeile wird H1 | H1 „Jobs in Bruchsal und Umgebung bei AO Consulting", der Spruch bleibt gleich groß als Absatz. Seitentitel „Jobs in Bruchsal und Umgebung für Quereinsteiger \| AO Consulting", Beschreibung und Erreichbarkeit mit Karlsruhe, Bretten, Stutensee, Ubstadt-Weiher, Forst und Weingarten |
 | Stellentitel | beide ändern | „Kaufmännische Assistenz im Backoffice (m/w/d)", „Webdesigner WordPress (m/w/d)". Adressen der Seiten unverändert |
 | Gehalt | ohne Gehalt | Feld bleibt leer |
+
+## Nachprüfung nach dem Livegang (28.09.2026)
+
+Geprüft auf ao-karriere.de (live) und im Projekt, dazu die Abnahmeprüfung
+`doku/werkzeug/pruef-karriere.js` (alles grün).
+
+**In Ordnung:** kein `noindex` mehr, kein `X-Robots-Tag`; `robots.txt` und
+`sitemap.xml` erreichbar; `http` und `www` leiten auf `https://ao-karriere.de`;
+alte WordPress-Adressen (`/impressum/`, `/job/...`) leiten weiter; HTML wird
+nicht zwischengespeichert; jede Seite hat genau eine h1, Titel, Beschreibung,
+Canonical, Open Graph, Favicon; alle Bilder mit Alt-Text und sprechendem
+Dateinamen als WebP und JPG; `JobPosting` mit allen Pflichtfeldern,
+`BreadcrumbList`, `Organization`; FAQ-Fragen als h3, Antworten nennen die Firma
+beim Namen (zitierfähig).
+
+**Behoben:**
+
+- Der Generator `bauen-stellen.py` schrieb noch `noindex, nofollow` in jede
+  Stellenseite und die Gleichstellungsseite. Beim nächsten Lauf wären alle
+  Stellen aus Google for Jobs verschwunden. Raus.
+- Der Generator war hinter Handkorrekturen zurück (Datenschutz-Links von den
+  Unterseiten, Sitemap ohne Rechtsseiten, alte Versionsnummer). Nachgezogen,
+  ein Lauf erzeugt jetzt wieder genau den veröffentlichten Stand.
+- `/job/` und `/jobs_category/` leiteten auf `/%23stellen` und damit ins 404,
+  weil `#` ohne das Flag `NE` kodiert wird. Flag gesetzt.
+- `FAQPage`-Auszeichnung für die sieben Fragen der Startseite, aus dem
+  sichtbaren Text erzeugt. Google zeigt sie für Firmen nicht mehr als
+  Rich Result, KI-Suchen lesen sie.
+- `twitter:card` auf allen Seiten, damit auch X und Slack die Vorschau ziehen.
+
+**Offen, nur außerhalb des Projekts zu erledigen:**
+
+- Search Console: Property anlegen, `sitemap.xml` einreichen, Stellen über die
+  Indexing API melden.
+- Bing Webmaster Tools und IndexNow.
+- Indeed-Konto und `indeed.xml` dort anmelden, Mailadresse bestätigen.
+- Bürozeiten in `stellen-daten.py`: die FAQ-Frage „wie sind die Zeiten?" bleibt
+  bis dahin ohne Zeiten.
+- `validThrough` der drei Stellen läuft am 26.11.2026 ab. Davor in
+  `stellen-daten.py` verlängern oder die Stelle auf „besetzt" setzen, sonst
+  fallen sie aus Google for Jobs.
+- Meta-Beschreibungen der Stellen Vertrieb und Backoffice sind 197 und 203
+  Zeichen lang, Google kürzt bei etwa 160. Wirkt, kostet aber nichts.
+- 404 liefert den Status 404, zeigt aber die Startseite. Eine eigene
+  Fehlerseite wäre sauberer, ist für Google aber kein Problem.
 
 ## Quellen
 

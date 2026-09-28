@@ -26,6 +26,10 @@ FEHLT = []   # Hinweise, die am Ende des Laufs ausgegeben werden
 ROUTE = ('https://www.google.com/maps/dir/?api=1&amp;destination='
          'AO%20Consulting%20GmbH%2C%20Zeiloch%2013%2C%2076646%20Bruchsal')
 ADRESSE = 'https://ao-karriere.de/'
+# Versionsnummer hinter stil.css, skript.js und karriere.js. Bei jeder Aenderung an
+# einer dieser Dateien hochzaehlen, sonst zeigen Browser einen Tag lang die alte
+# Fassung. Muss mit index.html und den Rechtsseiten uebereinstimmen.
+VERSION = '2'
 
 def e(t):
     return html.escape(str(t), quote=False)
@@ -124,6 +128,8 @@ KOPF     = hol('<header class="kopf', '</header>')
 FUSS     = hol('<footer class="fuss"', '</footer>')
 MOBIL    = hol('<div class="mobil-leiste', '</div>')
 EINWILL  = hol('<script>\nwindow.AO_EINWILLIGUNG', '</script>')
+# Von den Unterseiten aus liegen Datenschutz und Impressum eine Ebene hoeher.
+EINWILL  = EINWILL.replace("'rechtliches/", "'../rechtliches/")
 # Das Bewerbungsformular steht seit 21.09. nicht mehr auf der Startseite: beworben
 # wird je Stelle. Es liegt deshalb als eigener Baustein im Werkzeugordner.
 FORMULAR = open(os.path.join(BASIS, 'formular.html'), encoding='utf-8').read()
@@ -206,7 +212,6 @@ def seite(s):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%(titel_seite)s</title>
 <meta name="description" content="%(beschr)s">
-<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2b87da">
 <link rel="canonical" href="%(adresse)sstellen/%(schluessel)s.html">
 <meta property="og:type" content="website">
@@ -216,10 +221,11 @@ def seite(s):
 <meta property="og:url" content="%(adresse)sstellen/%(schluessel)s.html">
 <meta property="og:site_name" content="AO Consulting">
 <meta property="og:locale" content="de_DE">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../img/favicon.svg?v=1" type="image/svg+xml">
 <link rel="icon" href="../img/favicon-32.png?v=1" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.png?v=1">
-<link rel="stylesheet" href="../assets/stil.css?v=1">
+<link rel="stylesheet" href="../assets/stil.css?v=%(version)s">
 <link rel="stylesheet" href="../assets/einwilligung.css?v=1">
 <link rel="stylesheet" href="../assets/barrierefreiheit.css?v=1">
 <link rel="stylesheet" href="../assets/stellen-ampel.css?v=1">
@@ -332,13 +338,13 @@ def seite(s):
 
 <script src="../assets/einwilligung.js?v=1" defer></script>
 <script src="../assets/barrierefreiheit.js?v=1" defer></script>
-<script src="../assets/skript.js?v=1" defer></script>
-<script src="../assets/karriere.js?v=1" defer></script>
+<script src="../assets/skript.js?v=%(version)s" defer></script>
+<script src="../assets/karriere.js?v=%(version)s" defer></script>
 </body>
 </html>
 ''' % {
         'titel_seite': e(titel_seite), 'titel_og': e('%s in %s' % (s['titel'], FIRMA['ort'])),
-        'beschr': e(beschr), 'adresse': ADRESSE, 'schluessel': s['schluessel'],
+        'beschr': e(beschr), 'adresse': ADRESSE, 'schluessel': s['schluessel'], 'version': VERSION,
         'einwilligung': EINWILL, 'jobposting': jobposting(s), 'brotkrume': brotkrume(s),
         'sprite': SPRITE,
         # Die Unterseite hat keine dunkle Buehne oben. Ohne kopf--hell stuende
@@ -488,6 +494,39 @@ def firmendaten_einsetzen(s):
     return re.sub(r'<span data-firma="zeiten">.*?</span>',
                   '<span data-firma="zeiten">%s</span>' % satz, s, flags=re.S)
 
+def faq_ld(s):
+    """FAQPage-Auszeichnung aus dem sichtbaren FAQ-Block der Startseite. Frage ist
+    die h3 im summary, Antwort der Text darunter ohne HTML. So bleiben Text und
+    Auszeichnung zwangslaeufig deckungsgleich. KI-Suchen (ChatGPT, Perplexity,
+    Google AI) lesen die Fragen daraus, Google zeigt FAQ-Rich-Results fuer
+    Unternehmensseiten seit 2023 nicht mehr an; das Markup schadet nicht."""
+    eintraege = re.findall(r'<details class="faq__eintrag"[^>]*>(.*?)</details>', s, flags=re.S)
+    fragen = []
+    for block in eintraege:
+        f = re.search(r'<h3 class="faq__q">(.*?)</h3>', block, flags=re.S)
+        a = re.search(r'<div class="faq__a">(.*?)</div>', block, flags=re.S)
+        if not (f and a):
+            continue
+        frage = html.unescape(re.sub(r'<[^>]+>', '', f.group(1))).strip()
+        antwort = html.unescape(re.sub(r'<[^>]+>', '', a.group(1)))
+        antwort = re.sub(r'\s+', ' ', antwort).strip()
+        fragen.append({'@type': 'Question', 'name': frage,
+                       'acceptedAnswer': {'@type': 'Answer', 'text': antwort}})
+    if not fragen:
+        return ''
+    daten = {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': fragen}
+    return ('<script type="application/ld+json" data-faq>\n'
+            + json.dumps(daten, ensure_ascii=False, indent=1).replace('</', '<\\/')
+            + '\n</script>')
+
+def faq_ld_einsetzen(s):
+    block = faq_ld(s)
+    if not block:
+        return s
+    if 'data-faq>' in s:
+        return re.sub(r'<script type="application/ld\+json" data-faq>.*?</script>', lambda m: block, s, flags=re.S)
+    return s.replace('</head>', block + '\n</head>', 1)
+
 def liste_einsetzen():
     s = open('index.html', encoding='utf-8').read()
     i = s.find('<ul class="stellen__liste')
@@ -498,6 +537,7 @@ def liste_einsetzen():
         s = auswahl_einsetzen(s)
     s = firmendaten_einsetzen(s)
     s = texte_einsetzen(s)
+    s = faq_ld_einsetzen(s)
     if not FIRMA.get('oeffnungszeiten'):
         print('Hinweis: Buerozeiten stehen nicht in stellen-daten.py, '
               'die FAQ-Antwort nennt sie deshalb nicht.')
@@ -507,13 +547,18 @@ def liste_einsetzen():
     assert n == len(STELLEN), 'Stellenliste hat %d Karten statt %d' % (n, len(STELLEN))
 
 # --------------------------------------------------------------------- sitemap
+# Datum der letzten inhaltlichen Aenderung an Impressum, Datenschutz, Gleichstellung.
+RECHT_DATUM = '2026-09-25'
+
 def sitemap():
     heute = datetime.date.today().isoformat()
     # Google wertet lastmod nur, wenn es stimmt. Bei den Stellen gilt deshalb das
     # Datum der Veroeffentlichung oder, falls eingetragen, der letzten Aenderung.
     eintraege = [(ADRESSE, '1.0', heute)] + [
         (ADRESSE + 'stellen/' + s['schluessel'] + '.html', '0.9', s.get('geaendert') or s['veroeffentlicht'])
-        for s in STELLEN if s['status'] != 'besetzt']
+        for s in STELLEN if s['status'] != 'besetzt'] + [
+        (ADRESSE + 'rechtliches/' + name + '.html', '0.2', RECHT_DATUM)
+        for name in ('impressum', 'datenschutz', 'hinweis-zur-gleichstellung')]
     zeilen = ['<?xml version="1.0" encoding="UTF-8"?>',
               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for adr, prio, datum in eintraege:
@@ -540,13 +585,12 @@ def gleichstellung():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hinweis zur Gleichstellung | Karriere bei AO Consulting</title>
 <meta name="description" content="Hinweis zur Gleichstellung der AO Consulting GmbH: Personenbezeichnungen gelten für alle Geschlechter.">
-<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2b87da">
 <link rel="canonical" href="%(adresse)srechtliches/hinweis-zur-gleichstellung.html">
 <link rel="icon" href="../img/favicon.svg?v=1" type="image/svg+xml">
 <link rel="icon" href="../img/favicon-32.png?v=1" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.png?v=1">
-<link rel="stylesheet" href="../assets/stil.css?v=1">
+<link rel="stylesheet" href="../assets/stil.css?v=%(version)s">
 <link rel="stylesheet" href="../assets/einwilligung.css?v=1">
 <link rel="stylesheet" href="../assets/barrierefreiheit.css?v=1">
 <link rel="stylesheet" href="../assets/karriere.css?v=1">
@@ -578,10 +622,10 @@ def gleichstellung():
 
 <script src="../assets/einwilligung.js?v=1" defer></script>
 <script src="../assets/barrierefreiheit.js?v=1" defer></script>
-<script src="../assets/skript.js?v=1" defer></script>
+<script src="../assets/skript.js?v=%(version)s" defer></script>
 </body>
 </html>
-""" % {'adresse': ADRESSE, 'einwilligung': EINWILL, 'sprite': SPRITE,
+""" % {'adresse': ADRESSE, 'einwilligung': EINWILL, 'sprite': SPRITE, 'version': VERSION,
        'kopf': kopf_hell(auf_startseite(KOPF)), 'fuss': auf_startseite(FUSS),
        'mobil': auf_startseite(MOBIL), 'text': e(GLEICHSTELLUNG_TEXT)}
 
@@ -709,7 +753,7 @@ if __name__ == '__main__':
     os.makedirs('rechtliches', exist_ok=True)
     open(os.path.join('rechtliches', 'hinweis-zur-gleichstellung.html'), 'w', encoding='utf-8').write(gleichstellung())
     print('rechtliches/hinweis-zur-gleichstellung.html: erzeugt')
-    sitemap(); print('sitemap.xml: %d Adressen' % (1 + len([x for x in STELLEN if x['status'] != 'besetzt'])))
+    sitemap(); print('sitemap.xml: %d Adressen' % (4 + len([x for x in STELLEN if x['status'] != 'besetzt'])))
     n = indeed_feed(); print('%s: %d Stellen fuer Indeed' % (INDEED_DATEI, n))
     n = talent_feed(); print('%s: %d Stellen fuer Talent.com' % (TALENT_DATEI, n))
     if INDEED_MAIL == 'jobs@ao-karriere.de':

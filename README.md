@@ -56,6 +56,16 @@ fertige HTML-Datei. Sonst sind sie beim nächsten Lauf des Generators weg.
 Für reine Textkorrekturen an `index.html` außerhalb der Stellenliste gilt das
 nicht, die kann man direkt ändern.
 
+Der Generator schreibt **kein** `noindex` mehr in die Seiten (bis 28.09.2026 tat
+er das noch, die Stellen wären beim nächsten Lauf aus Google verschwunden).
+Die `FAQPage`-Auszeichnung auf der Startseite erzeugt er aus dem sichtbaren
+FAQ-Text, beides ist damit immer deckungsgleich.
+
+**Nach jeder Änderung an `stil.css`, `skript.js` oder `karriere.js`** die
+Versionsnummer hochzählen: `VERSION` in `bauen-stellen.py` und `?v=` in
+`index.html` sowie den drei Rechtsseiten. Sonst zeigen Browser einen Tag lang
+die alte Fassung, die `.htaccess` lässt CSS und JS so lange zwischenspeichern.
+
 ---
 
 ## Was diese Seite bewusst NICHT tut
