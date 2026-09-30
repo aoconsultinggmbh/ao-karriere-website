@@ -44,7 +44,7 @@ if (($_GET['t'] ?? '') === '1' && !empty($wert) && is_string($wert)) {
         'custom_fields' => [
             '1207919734281724' => 'pruef@example.org',
             '1207919734281726' => 'Pruefkarte',
-            '1210066015972749' => date('Y-m-d', strtotime('+6 months')),
+            '1210066015972749' => ['date' => date('Y-m-d', strtotime('+6 months'))],
         ],
     ]];
     $c = curl_init('https://app.asana.com/api/1.0/tasks');

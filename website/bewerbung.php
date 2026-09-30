@@ -190,7 +190,10 @@ function asana_karte($daten) {
         'custom_fields' => [
             $daten['f_mail']   => $daten['email'],
             $daten['f_name']   => $daten['name'],
-            $daten['f_loesch'] => date('Y-m-d', strtotime($daten['frist'])),
+            // Datumsfelder verlangt Asana als Objekt, nicht als Text:
+            // {"date": "2027-03-30"}. Als blosser Text antwortet die
+            // Schnittstelle mit 400 "DayAndDateTime is not a JSON object".
+            $daten['f_loesch'] => ['date' => date('Y-m-d', strtotime($daten['frist']))],
         ],
     ]);
     if ($code < 200 || $code > 299 || empty($ergebnis['data']['gid'])) {
