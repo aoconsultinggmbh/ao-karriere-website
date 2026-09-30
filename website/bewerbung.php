@@ -215,6 +215,22 @@ function asana_karte($daten) {
     }
 }
 
+/*
+ * Erst dem Browser antworten, dann Asana. Sonst wartet der Bewerber auf einen
+ * Schritt, der ihn nichts angeht, und bei einem langsamen Anhang laeuft die
+ * Zeit fuer das Skript ab, bevor die Antwort ankommt: Er sieht eine
+ * Fehlermeldung, obwohl die Mail laengst raus ist.
+ */
+ignore_user_abort(true);
+$ausgabe = json_encode(['ok' => true, 'fehler' => ''], JSON_UNESCAPED_UNICODE);
+header('Content-Length: ' . strlen($ausgabe));
+header('Connection: close');
+echo $ausgabe;
+while (ob_get_level() > 0) { @ob_end_flush(); }
+@flush();
+if (function_exists('fastcgi_finish_request')) { @fastcgi_finish_request(); }
+@set_time_limit(120);   // der Rest laeuft ohne Zuschauer weiter
+
 try {
     asana_karte([
         'datei' => $ASANA_DATEI, 'projekt' => $ASANA_PROJEKT, 'spalte' => $ASANA_SPALTE,
@@ -225,5 +241,4 @@ try {
 } catch (Throwable $e) {
     error_log('Bewerbung: Asana-Schritt abgebrochen: ' . $e->getMessage());
 }
-
-antwort(true);
+exit;
