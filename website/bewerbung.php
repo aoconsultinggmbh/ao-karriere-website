@@ -222,10 +222,11 @@ function asana_karte($daten) {
  * Fehlermeldung, obwohl die Mail laengst raus ist.
  */
 ignore_user_abort(true);
-$ausgabe = json_encode(['ok' => true, 'fehler' => ''], JSON_UNESCAPED_UNICODE);
-header('Content-Length: ' . strlen($ausgabe));
-header('Connection: close');
-echo $ausgabe;
+// Kein eigenes Content-Length und kein Connection-Header: wenn der Server die
+// Antwort komprimiert, stimmt die angegebene Laenge nicht mehr und der Browser
+// verwirft die Antwort. fastcgi_finish_request genuegt, um die Verbindung zu
+// schliessen und im Hintergrund weiterzuarbeiten.
+echo json_encode(['ok' => true, 'fehler' => ''], JSON_UNESCAPED_UNICODE);
 while (ob_get_level() > 0) { @ob_end_flush(); }
 @flush();
 if (function_exists('fastcgi_finish_request')) { @fastcgi_finish_request(); }
