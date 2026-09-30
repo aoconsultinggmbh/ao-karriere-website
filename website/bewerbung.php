@@ -94,9 +94,6 @@ if (!empty($_FILES['unterlagen']['name'][0])) {
             'name' => $sicher,
             'typ'  => $ERLAUBT[$endung],
             'daten'=> file_get_contents($tmp),
-            // Pfad der hochgeladenen Datei: die Karte in Asana bekommt sie
-            // direkt von hier, ohne zweite Kopie im Arbeitsspeicher.
-            'tmp'  => $tmp,
         ];
     }
 }
@@ -203,11 +200,18 @@ function asana_karte($daten) {
     $aufgabe = $ergebnis['data']['gid'];
 
     foreach ($daten['anhaenge'] as $a) {
-        if (empty($a['tmp']) || !is_readable($a['tmp'])) continue;
+        // Nicht die hochgeladene Datei verwenden: die raeumt PHP weg, sobald die
+        // Antwort an den Browser raus ist. Die Bytes liegen ohnehin schon im
+        // Arbeitsspeicher, daraus wird hier kurz eine eigene Datei geschrieben.
+        if (empty($a['daten'])) continue;
+        $weg = tempnam(sys_get_temp_dir(), 'ao');
+        if ($weg === false) continue;
+        file_put_contents($weg, $a['daten']);
         list($code2,) = asana_ruf($schluessel, 'attachments', null, [
             'parent' => $aufgabe,
-            'file'   => new CURLFile($a['tmp'], $a['typ'], $a['name']),
-        ], 30);
+            'file'   => new CURLFile($weg, $a['typ'], $a['name']),
+        ], 60);
+        @unlink($weg);
         if ($code2 < 200 || $code2 > 299) {
             error_log('Bewerbung: Anhang "' . $a['name'] . '" nicht an Asana-Karte '
                       . $aufgabe . ' gehaengt (HTTP ' . $code2 . ').');
