@@ -70,15 +70,31 @@ $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
 /* ---------- Anhaenge einsammeln und pruefen ---------- */
 $anhaenge = [];
 $summe = 0;
-if (!empty($_FILES['unterlagen']['name'][0])) {
-    $n = count($_FILES['unterlagen']['name']);
-    if ($n > $MAX_ANZAHL) antwort(false, 'Hoechstens drei Dateien.');
-    for ($i = 0; $i < $n; $i++) {
-        if ($_FILES['unterlagen']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
-        if ($_FILES['unterlagen']['error'][$i] !== UPLOAD_ERR_OK) antwort(false, 'Eine Datei kam nicht vollstaendig an.');
-        $tmp  = $_FILES['unterlagen']['tmp_name'][$i];
+/*
+ * Heisst das Feld im Formular "unterlagen" statt "unterlagen[]", liefert PHP
+ * die Angaben als einzelnen Text und nicht als Liste - auch wenn mehrere
+ * Dateien erlaubt sind. Wer dann blind ueber eine Liste laeuft, bekommt einen
+ * Absturz und der Bewerber eine Fehlermeldung. Deshalb hier beides annehmen.
+ */
+$eingang = [];
+if (isset($_FILES['unterlagen'])) {
+    $u = $_FILES['unterlagen'];
+    if (is_array($u['name'])) {
+        foreach ($u['name'] as $i => $nm) {
+            $eingang[] = ['name' => $nm, 'tmp' => $u['tmp_name'][$i], 'fehler' => $u['error'][$i]];
+        }
+    } elseif ($u['name'] !== '') {
+        $eingang[] = ['name' => $u['name'], 'tmp' => $u['tmp_name'], 'fehler' => $u['error']];
+    }
+}
+if ($eingang) {
+    if (count($eingang) > $MAX_ANZAHL) antwort(false, 'Hoechstens drei Dateien.');
+    foreach ($eingang as $e) {
+        if ($e['fehler'] === UPLOAD_ERR_NO_FILE) continue;
+        if ($e['fehler'] !== UPLOAD_ERR_OK) antwort(false, 'Eine Datei kam nicht vollstaendig an.');
+        $tmp  = $e['tmp'];
         if (!is_uploaded_file($tmp)) antwort(false, 'Datei abgelehnt.');
-        $roh  = $_FILES['unterlagen']['name'][$i];
+        $roh  = $e['name'];
         $endung = strtolower(pathinfo($roh, PATHINFO_EXTENSION));
         if (!isset($ERLAUBT[$endung])) antwort(false, 'Bitte nur PDF-Dateien anhängen.');
         // Nicht nur der Name zaehlt: jede echte PDF-Datei beginnt mit %PDF.
