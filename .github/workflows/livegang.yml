@@ -78,6 +78,9 @@ jobs:
       #   open + user (zwei Zeilen)     vertraegt Passwoerter mit Komma oder @,
       #                                 anders als "open -u benutzer,passwort"
       #
+      # ao-geheim.php ist ausgenommen: darin steht der Asana-Schluessel. Die Datei
+      # liegt nur auf dem Server, nie im Projekt. Ohne die Ausnahme wuerde --delete
+      # sie bei jedem Upload loeschen und das Bewerbermanagement waere still tot.
       # --delete raeumt Dateien weg, die es im Projekt nicht mehr gibt.
       # Das ist gewollt: im Zielordner liegt ausschliesslich diese Webseite.
       - name: Auf den Server hochladen (FTPS, verschluesselt)
@@ -101,7 +104,7 @@ jobs:
           set cmd:fail-exit true
           open "$SERVER"
           user "$BENUTZER" "$PASSWORT"
-          mirror --reverse --delete --verbose=1 --parallel=2 --exclude-glob .DS_Store ./website/ "${ORDNER:-./}"
+          mirror --reverse --delete --verbose=1 --parallel=2 --exclude-glob .DS_Store --exclude-glob ao-geheim.php ./website/ "${ORDNER:-./}"
           bye
           LFTP
           echo "Upload abgeschlossen."

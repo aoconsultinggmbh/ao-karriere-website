@@ -2,6 +2,11 @@
 # Karriereseite AO Consulting - Servereinstellungen (All-Inkl, Apache)
 # ---------------------------------------------------------------------------
 Options -Indexes
+
+# Die Datei mit dem Asana-Schluessel ist von aussen nicht abrufbar.
+<Files "ao-geheim.php">
+  Require all denied
+</Files>
 DirectoryIndex index.html
 ErrorDocument 404 /index.html
 

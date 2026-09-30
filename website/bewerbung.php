@@ -9,6 +9,21 @@ $ABSENDER      = 'jobs@ao-karriere.de';   // muss eine echte Adresse AUF DIESER 
                                          // sonst landet die Mail im Spam (SPF/DMARC)
 $ABSENDER_NAME = 'AO Karriereseite';
 
+/*
+ * Bewerbermanagement in Asana (Board "BMS | #AO Consulting GmbH").
+ * Der Zugriffsschluessel steht NICHT hier und nicht im GitHub-Projekt, sondern
+ * in der Datei ao-geheim.php daneben. Die wird beim Hochladen ausgenommen und
+ * ueberlebt damit jeden Upload. Fehlt sie, verhaelt sich das Skript wie frueher
+ * und verschickt nur die Mail.
+ */
+$ASANA_DATEI     = __DIR__ . '/ao-geheim.php';
+$ASANA_PROJEKT   = '1207775285258252';   // BMS | #AO Consulting GmbH
+$ASANA_SPALTE    = '1207775285258253';   // Beworben
+$ASANA_F_MAIL    = '1207919734281724';   // Feld "Mail"
+$ASANA_F_NAME    = '1207919734281726';   // Feld "Name"
+$ASANA_F_LOESCH  = '1210066015972749';   // Feld "Bewerber wird geloescht am"
+$ASANA_FRIST     = '+6 months';          // Aufbewahrung, abgestimmt 30.09.2026
+
 $MAX_GESAMT = 10 * 1024 * 1024;   // 10 MB ueber alle Anhaenge
 $MAX_ANZAHL = 3;
 // Ovidiu 25.09.2026: Bewerbungen grundsaetzlich als PDF.
@@ -79,6 +94,9 @@ if (!empty($_FILES['unterlagen']['name'][0])) {
             'name' => $sicher,
             'typ'  => $ERLAUBT[$endung],
             'daten'=> file_get_contents($tmp),
+            // Pfad der hochgeladenen Datei: die Karte in Asana bekommt sie
+            // direkt von hier, ohne zweite Kopie im Arbeitsspeicher.
+            'tmp'  => $tmp,
         ];
     }
 }
@@ -123,4 +141,86 @@ $rumpf .= '--' . $grenze . "--\r\n";
 
 $gesendet = @mail($EMPFAENGER, mb_encode_mimeheader($betreff, 'UTF-8'), $rumpf, $kopf, '-f' . $ABSENDER);
 if (!$gesendet) { http_response_code(500); antwort(false, 'Versand fehlgeschlagen.'); }
+
+/* ---------- Karte im Bewerbermanagement anlegen ----------
+ * Zweiter Schritt, bewusst NACH der Mail. Geht hier etwas schief, merkt der
+ * Bewerber davon nichts und die Bewerbung ist trotzdem angekommen. Der Fehler
+ * landet im Serverprotokoll, damit man ihn nachtraeglich findet.
+ */
+function asana_ruf($schluessel, $pfad, $daten, $datei = null, $sekunden = 10) {
+    $c = curl_init('https://app.asana.com/api/1.0/' . $pfad);
+    $kopf = ['Authorization: Bearer ' . $schluessel, 'Accept: application/json'];
+    if ($datei === null) {
+        $kopf[] = 'Content-Type: application/json';
+        curl_setopt($c, CURLOPT_POSTFIELDS, json_encode(['data' => $daten]));
+    } else {
+        curl_setopt($c, CURLOPT_POSTFIELDS, $datei);   // multipart, Content-Type setzt cURL
+    }
+    curl_setopt_array($c, [
+        CURLOPT_POST           => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => $kopf,
+        CURLOPT_TIMEOUT        => $sekunden,
+        CURLOPT_CONNECTTIMEOUT => 5,
+    ]);
+    $antwort = curl_exec($c);
+    $code    = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    curl_close($c);
+    return [$code, json_decode((string)$antwort, true)];
+}
+
+function asana_karte($daten) {
+    if (!function_exists('curl_init')) return;
+    if (!is_readable($daten['datei'])) return;            // kein Schluessel hinterlegt
+    $schluessel = @include $daten['datei'];
+    $schluessel = is_string($schluessel) ? trim($schluessel) : '';
+    if ($schluessel === '') return;
+
+    $notiz = "Stelle: " . $daten['stelle'] . "\n"
+           . "Telefon: " . $daten['telefon'] . "\n"
+           . "E-Mail: " . $daten['email'] . "\n\n"
+           . "Nachricht:\n" . ($daten['text'] !== '' ? $daten['text'] : '(keine)') . "\n\n"
+           . "Eingegangen ueber ao-karriere.de am " . date('d.m.Y H:i') . " Uhr.";
+
+    list($code, $ergebnis) = asana_ruf($schluessel, 'tasks', [
+        'name'          => $daten['name'],
+        'notes'         => $notiz,
+        'projects'      => [$daten['projekt']],
+        'memberships'   => [['project' => $daten['projekt'], 'section' => $daten['spalte']]],
+        'custom_fields' => [
+            $daten['f_mail']   => $daten['email'],
+            $daten['f_name']   => $daten['name'],
+            $daten['f_loesch'] => date('Y-m-d', strtotime($daten['frist'])),
+        ],
+    ]);
+    if ($code < 200 || $code > 299 || empty($ergebnis['data']['gid'])) {
+        error_log('Bewerbung: Asana-Karte fuer "' . $daten['name'] . '" nicht angelegt (HTTP ' . $code . ').');
+        return;
+    }
+    $aufgabe = $ergebnis['data']['gid'];
+
+    foreach ($daten['anhaenge'] as $a) {
+        if (empty($a['tmp']) || !is_readable($a['tmp'])) continue;
+        list($code2,) = asana_ruf($schluessel, 'attachments', null, [
+            'parent' => $aufgabe,
+            'file'   => new CURLFile($a['tmp'], $a['typ'], $a['name']),
+        ], 30);
+        if ($code2 < 200 || $code2 > 299) {
+            error_log('Bewerbung: Anhang "' . $a['name'] . '" nicht an Asana-Karte '
+                      . $aufgabe . ' gehaengt (HTTP ' . $code2 . ').');
+        }
+    }
+}
+
+try {
+    asana_karte([
+        'datei' => $ASANA_DATEI, 'projekt' => $ASANA_PROJEKT, 'spalte' => $ASANA_SPALTE,
+        'f_mail' => $ASANA_F_MAIL, 'f_name' => $ASANA_F_NAME, 'f_loesch' => $ASANA_F_LOESCH,
+        'frist' => $ASANA_FRIST, 'name' => $name, 'email' => $email, 'telefon' => $telefon,
+        'stelle' => $stelle, 'text' => $text, 'anhaenge' => $anhaenge,
+    ]);
+} catch (Throwable $e) {
+    error_log('Bewerbung: Asana-Schritt abgebrochen: ' . $e->getMessage());
+}
+
 antwort(true);
