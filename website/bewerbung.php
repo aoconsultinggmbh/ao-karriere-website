@@ -147,12 +147,7 @@ if (!$gesendet) { http_response_code(500); antwort(false, 'Versand fehlgeschlage
 function asana_ruf($schluessel, $pfad, $daten, $datei = null, $sekunden = 10) {
     $c = curl_init('https://app.asana.com/api/1.0/' . $pfad);
     $kopf = ['Authorization: Bearer ' . $schluessel, 'Accept: application/json'];
-    if ($datei === null) {
-        $kopf[] = 'Content-Type: application/json';
-        curl_setopt($c, CURLOPT_POSTFIELDS, json_encode(['data' => $daten]));
-    } else {
-        curl_setopt($c, CURLOPT_POSTFIELDS, $datei);   // multipart, Content-Type setzt cURL
-    }
+    if ($datei === null) $kopf[] = 'Content-Type: application/json';
     curl_setopt_array($c, [
         CURLOPT_POST           => true,
         CURLOPT_RETURNTRANSFER => true,
@@ -160,6 +155,10 @@ function asana_ruf($schluessel, $pfad, $daten, $datei = null, $sekunden = 10) {
         CURLOPT_TIMEOUT        => $sekunden,
         CURLOPT_CONNECTTIMEOUT => 5,
     ]);
+    // Der Inhalt zuletzt: setzt man CURLOPT_POST danach, verwirft cURL bei
+    // einem Datei-Upload die bereits gesetzten Felder.
+    curl_setopt($c, CURLOPT_POSTFIELDS,
+        $datei === null ? json_encode(['data' => $daten]) : $datei);
     $antwort = curl_exec($c);
     $code    = curl_getinfo($c, CURLINFO_HTTP_CODE);
     curl_close($c);
