@@ -70,15 +70,31 @@ $email = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
 /* ---------- Anhaenge einsammeln und pruefen ---------- */
 $anhaenge = [];
 $summe = 0;
-if (!empty($_FILES['unterlagen']['name'][0])) {
-    $n = count($_FILES['unterlagen']['name']);
-    if ($n > $MAX_ANZAHL) antwort(false, 'Hoechstens drei Dateien.');
-    for ($i = 0; $i < $n; $i++) {
-        if ($_FILES['unterlagen']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
-        if ($_FILES['unterlagen']['error'][$i] !== UPLOAD_ERR_OK) antwort(false, 'Eine Datei kam nicht vollstaendig an.');
-        $tmp  = $_FILES['unterlagen']['tmp_name'][$i];
+/*
+ * Heisst das Feld im Formular "unterlagen" statt "unterlagen[]", liefert PHP
+ * die Angaben als einzelnen Text und nicht als Liste - auch wenn mehrere
+ * Dateien erlaubt sind. Wer dann blind ueber eine Liste laeuft, bekommt einen
+ * Absturz und der Bewerber eine Fehlermeldung. Deshalb hier beides annehmen.
+ */
+$eingang = [];
+if (isset($_FILES['unterlagen'])) {
+    $u = $_FILES['unterlagen'];
+    if (is_array($u['name'])) {
+        foreach ($u['name'] as $i => $nm) {
+            $eingang[] = ['name' => $nm, 'tmp' => $u['tmp_name'][$i], 'fehler' => $u['error'][$i]];
+        }
+    } elseif ($u['name'] !== '') {
+        $eingang[] = ['name' => $u['name'], 'tmp' => $u['tmp_name'], 'fehler' => $u['error']];
+    }
+}
+if ($eingang) {
+    if (count($eingang) > $MAX_ANZAHL) antwort(false, 'Hoechstens drei Dateien.');
+    foreach ($eingang as $e) {
+        if ($e['fehler'] === UPLOAD_ERR_NO_FILE) continue;
+        if ($e['fehler'] !== UPLOAD_ERR_OK) antwort(false, 'Eine Datei kam nicht vollstaendig an.');
+        $tmp  = $e['tmp'];
         if (!is_uploaded_file($tmp)) antwort(false, 'Datei abgelehnt.');
-        $roh  = $_FILES['unterlagen']['name'][$i];
+        $roh  = $e['name'];
         $endung = strtolower(pathinfo($roh, PATHINFO_EXTENSION));
         if (!isset($ERLAUBT[$endung])) antwort(false, 'Bitte nur PDF-Dateien anhängen.');
         // Nicht nur der Name zaehlt: jede echte PDF-Datei beginnt mit %PDF.
@@ -94,9 +110,6 @@ if (!empty($_FILES['unterlagen']['name'][0])) {
             'name' => $sicher,
             'typ'  => $ERLAUBT[$endung],
             'daten'=> file_get_contents($tmp),
-            // Pfad der hochgeladenen Datei: die Karte in Asana bekommt sie
-            // direkt von hier, ohne zweite Kopie im Arbeitsspeicher.
-            'tmp'  => $tmp,
         ];
     }
 }
@@ -150,12 +163,7 @@ if (!$gesendet) { http_response_code(500); antwort(false, 'Versand fehlgeschlage
 function asana_ruf($schluessel, $pfad, $daten, $datei = null, $sekunden = 10) {
     $c = curl_init('https://app.asana.com/api/1.0/' . $pfad);
     $kopf = ['Authorization: Bearer ' . $schluessel, 'Accept: application/json'];
-    if ($datei === null) {
-        $kopf[] = 'Content-Type: application/json';
-        curl_setopt($c, CURLOPT_POSTFIELDS, json_encode(['data' => $daten]));
-    } else {
-        curl_setopt($c, CURLOPT_POSTFIELDS, $datei);   // multipart, Content-Type setzt cURL
-    }
+    if ($datei === null) $kopf[] = 'Content-Type: application/json';
     curl_setopt_array($c, [
         CURLOPT_POST           => true,
         CURLOPT_RETURNTRANSFER => true,
@@ -163,6 +171,10 @@ function asana_ruf($schluessel, $pfad, $daten, $datei = null, $sekunden = 10) {
         CURLOPT_TIMEOUT        => $sekunden,
         CURLOPT_CONNECTTIMEOUT => 5,
     ]);
+    // Der Inhalt zuletzt: setzt man CURLOPT_POST danach, verwirft cURL bei
+    // einem Datei-Upload die bereits gesetzten Felder.
+    curl_setopt($c, CURLOPT_POSTFIELDS,
+        $datei === null ? json_encode(['data' => $daten]) : $datei);
     $antwort = curl_exec($c);
     $code    = curl_getinfo($c, CURLINFO_HTTP_CODE);
     curl_close($c);
@@ -190,7 +202,10 @@ function asana_karte($daten) {
         'custom_fields' => [
             $daten['f_mail']   => $daten['email'],
             $daten['f_name']   => $daten['name'],
-            $daten['f_loesch'] => date('Y-m-d', strtotime($daten['frist'])),
+            // Datumsfelder verlangt Asana als Objekt, nicht als Text:
+            // {"date": "2027-03-30"}. Als blosser Text antwortet die
+            // Schnittstelle mit 400 "DayAndDateTime is not a JSON object".
+            $daten['f_loesch'] => ['date' => date('Y-m-d', strtotime($daten['frist']))],
         ],
     ]);
     if ($code < 200 || $code > 299 || empty($ergebnis['data']['gid'])) {
@@ -200,17 +215,41 @@ function asana_karte($daten) {
     $aufgabe = $ergebnis['data']['gid'];
 
     foreach ($daten['anhaenge'] as $a) {
-        if (empty($a['tmp']) || !is_readable($a['tmp'])) continue;
+        // Nicht die hochgeladene Datei verwenden: die raeumt PHP weg, sobald die
+        // Antwort an den Browser raus ist. Die Bytes liegen ohnehin schon im
+        // Arbeitsspeicher, daraus wird hier kurz eine eigene Datei geschrieben.
+        if (empty($a['daten'])) continue;
+        $weg = tempnam(sys_get_temp_dir(), 'ao');
+        if ($weg === false) continue;
+        file_put_contents($weg, $a['daten']);
         list($code2,) = asana_ruf($schluessel, 'attachments', null, [
             'parent' => $aufgabe,
-            'file'   => new CURLFile($a['tmp'], $a['typ'], $a['name']),
-        ], 30);
+            'file'   => new CURLFile($weg, $a['typ'], $a['name']),
+        ], 60);
+        @unlink($weg);
         if ($code2 < 200 || $code2 > 299) {
             error_log('Bewerbung: Anhang "' . $a['name'] . '" nicht an Asana-Karte '
                       . $aufgabe . ' gehaengt (HTTP ' . $code2 . ').');
         }
     }
 }
+
+/*
+ * Erst dem Browser antworten, dann Asana. Sonst wartet der Bewerber auf einen
+ * Schritt, der ihn nichts angeht, und bei einem langsamen Anhang laeuft die
+ * Zeit fuer das Skript ab, bevor die Antwort ankommt: Er sieht eine
+ * Fehlermeldung, obwohl die Mail laengst raus ist.
+ */
+ignore_user_abort(true);
+// Kein eigenes Content-Length und kein Connection-Header: wenn der Server die
+// Antwort komprimiert, stimmt die angegebene Laenge nicht mehr und der Browser
+// verwirft die Antwort. fastcgi_finish_request genuegt, um die Verbindung zu
+// schliessen und im Hintergrund weiterzuarbeiten.
+echo json_encode(['ok' => true, 'fehler' => ''], JSON_UNESCAPED_UNICODE);
+while (ob_get_level() > 0) { @ob_end_flush(); }
+@flush();
+if (function_exists('fastcgi_finish_request')) { @fastcgi_finish_request(); }
+@set_time_limit(120);   // der Rest laeuft ohne Zuschauer weiter
 
 try {
     asana_karte([
@@ -222,5 +261,4 @@ try {
 } catch (Throwable $e) {
     error_log('Bewerbung: Asana-Schritt abgebrochen: ' . $e->getMessage());
 }
-
-antwort(true);
+exit;
