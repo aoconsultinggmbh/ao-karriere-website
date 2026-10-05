@@ -1091,7 +1091,7 @@ body > .fuss{background:var(--fuss);color:rgba(255,255,255,.7);padding:3.5rem 0 
 .ablauf__fuss{text-align:center;margin:2.2rem auto 0;max-width:60ch;color:var(--text-2);font-size:.98rem}
 /* Sprungmarken dürfen nicht unter dem festen Kopf landen */
 section[id]{scroll-margin-top:6.5rem}
-/* Danke-Seite: zweispaltiges Raster, heller Pfeil auf dunklem Grund */
+/* Zweispaltiges Raster (Danke-Seite und "Vier Dinge" auf der Startseite), heller Pfeil auf dunklem Grund */
 .lage__raster--zwei{grid-template-columns:repeat(2,1fr)}
 @media (max-width:820px){.lage__raster--zwei{grid-template-columns:1fr}}
 .pfeil--hell{color:var(--blau-hell)}
