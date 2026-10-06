@@ -227,7 +227,7 @@ def seite(s):
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.png?v=1">
 <link rel="stylesheet" href="../assets/stil.css?v=%(version)s">
 <link rel="stylesheet" href="../assets/einwilligung.css?v=1">
-<link rel="stylesheet" href="../assets/barrierefreiheit.css?v=1">
+<link rel="stylesheet" href="../assets/barrierefreiheit.css?v=20261006">
 <link rel="stylesheet" href="../assets/stellen-ampel.css?v=1">
 <link rel="stylesheet" href="../assets/karriere.css?v=1">
 <link rel="stylesheet" href="../assets/stelle.css?v=1">
@@ -592,7 +592,7 @@ def gleichstellung():
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.png?v=1">
 <link rel="stylesheet" href="../assets/stil.css?v=%(version)s">
 <link rel="stylesheet" href="../assets/einwilligung.css?v=1">
-<link rel="stylesheet" href="../assets/barrierefreiheit.css?v=1">
+<link rel="stylesheet" href="../assets/barrierefreiheit.css?v=20261006">
 <link rel="stylesheet" href="../assets/karriere.css?v=1">
 %(einwilligung)s
 </head>
