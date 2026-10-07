@@ -110,7 +110,7 @@ BENEFITS_STANDARD = [
     'Kaffee, Wasser, Cola Zero, Paulaner Spezi, Obst und Süßigkeiten sind selbstverständlich',
     'Fahrtkostenzuschüsse',
     'Ergonomischer und klimatisierter Arbeitsplatz mit höhenverstellbaren Tischen',
-    'Digitaler Einarbeitungsplan',
+    'Vergünstigte Buchung auf dem Padel Court in Bruchsal',   # ersetzt den digitalen Einarbeitungsplan, Ovidiu 07.10.2026
     'Arbeiten auf modernen Apple-Geräten',
     'Mitarbeiterevents, Teamevents, After-Work',
     '30 Tage Urlaub',
@@ -182,6 +182,7 @@ STELLEN = [
             'Erfahrung mit Microsoft-Programmen wie Outlook ist vorteilhaft, aber nicht zwingend erforderlich',
             'Führerschein Klasse B',
         ],
+        'benefits_extra': ['Möglichkeit auf Homeoffice'],   # Ovidiu 07.10.2026
     },
     {
         'schluessel': 'webdesigner-wordpress-bruchsal',
