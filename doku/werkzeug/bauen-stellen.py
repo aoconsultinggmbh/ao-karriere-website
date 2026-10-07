@@ -12,6 +12,8 @@ BASIS = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location('daten', os.path.join(BASIS, 'stellen-daten.py'))
 d = importlib.util.module_from_spec(spec); spec.loader.exec_module(d)
 FIRMA, AP, KUNUNU, STELLEN = d.FIRMA, d.ANSPRECHPARTNER, d.KUNUNU, d.STELLEN
+# Stellen mit 'offline': True werden komplett ausgelassen (siehe stellen-daten.py).
+STELLEN = [s for s in STELLEN if not s.get('offline')]
 
 def ansprechpartner_fuer(s):
     # Regel aus stellen-daten.py: Vertrieb -> Admir, alles andere -> Ovidiu.
@@ -29,7 +31,7 @@ ADRESSE = 'https://ao-karriere.de/'
 # Versionsnummer hinter stil.css, skript.js und karriere.js. Bei jeder Aenderung an
 # einer dieser Dateien hochzaehlen, sonst zeigen Browser einen Tag lang die alte
 # Fassung. Muss mit index.html und den Rechtsseiten uebereinstimmen.
-VERSION = '2'
+VERSION = '20261007-2'
 
 def e(t):
     return html.escape(str(t), quote=False)

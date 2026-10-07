@@ -11,6 +11,9 @@ schluessel   Dateiname und Adresse der Unterseite. Klein, mit Bindestrichen,
              mit dem Suchbegriff vorn und dem Ort hinten. Wird nie geändert,
              sobald die Seite einmal veröffentlicht ist: eine geänderte Adresse
              ist für Google eine neue Stelle und die alte gilt als verschwunden.
+offline      True: die Stelle erscheint nirgends (keine Unterseite, nicht in
+             der Liste, nicht in sitemap.xml, indeed.xml und talent.xml).
+             Daten bleiben hier stehen, damit sie sich zurueckholen laesst.
 status       'aktiv'      grün, blinkend, wird gerade besetzt
              'initiativ'  gelb, gerade nicht ausgeschrieben
              'besetzt'    rot, nicht mehr offen. Google gegenüber gilt sie
@@ -182,6 +185,7 @@ STELLEN = [
     },
     {
         'schluessel': 'webdesigner-wordpress-bruchsal',
+        'offline': True,   # 07.10.2026 vorerst offline genommen (Wunsch Ovidiu). Zum Zurueckholen Zeile loeschen, Generator laufen lassen, Umleitung in .htaccess entfernen.
         'ausbildung_noetig': False,   # Google for Jobs: False = "no requirements"
         'bereich': 'webdesign',
         'status': 'initiativ',
