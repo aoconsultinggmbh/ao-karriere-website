@@ -338,6 +338,7 @@ def seite(s):
 
 <script src="../assets/einwilligung.js?v=1" defer></script>
 <script src="../assets/barrierefreiheit.js?v=1" defer></script>
+<script src="../assets/statistik.js" defer></script>
 <script src="../assets/skript.js?v=%(version)s" defer></script>
 <script src="../assets/karriere.js?v=%(version)s" defer></script>
 </body>
@@ -622,6 +623,7 @@ def gleichstellung():
 
 <script src="../assets/einwilligung.js?v=1" defer></script>
 <script src="../assets/barrierefreiheit.js?v=1" defer></script>
+<script src="../assets/statistik.js" defer></script>
 <script src="../assets/skript.js?v=%(version)s" defer></script>
 </body>
 </html>
