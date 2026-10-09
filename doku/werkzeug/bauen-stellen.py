@@ -646,7 +646,7 @@ def gleichstellung():
 #  - Alle Texte in CDATA, Datum im Format ISO 8601.
 #  - <email> muss die Adresse des Arbeitgeberkontos bei Indeed sein.
 INDEED_DATEI = 'indeed.xml'
-INDEED_MAIL = 'jobs@ao-karriere.de'          # OFFEN: Adresse des Indeed-Kontos bestaetigen
+INDEED_MAIL = 'service@ao-consult.de'        # Adresse des Indeed-Arbeitgeberkontos, bestaetigt von Ovidiu am 07.10.2026
 INDEED_GELB_ALS_TALENTPOOL = True            # Indeed-Regel, siehe oben
 INDEED_KATEGORIE = {'vertrieb': 'Vertrieb', 'backoffice': 'Büro, Verwaltung',
                     'webdesign': 'Webdesign, IT'}
@@ -760,6 +760,6 @@ if __name__ == '__main__':
     sitemap(); print('sitemap.xml: %d Adressen' % (4 + len([x for x in STELLEN if x['status'] != 'besetzt'])))
     n = indeed_feed(); print('%s: %d Stellen fuer Indeed' % (INDEED_DATEI, n))
     n = talent_feed(); print('%s: %d Stellen fuer Talent.com' % (TALENT_DATEI, n))
-    if INDEED_MAIL == 'jobs@ao-karriere.de':
+    if INDEED_MAIL == 'jobs@ao-karriere.de':  # alter Platzhalter
         FEHLT.append('indeed.xml: Mailadresse des Indeed-Kontos noch nicht bestaetigt')
     for f in FEHLT: print('Hinweis:', f)
